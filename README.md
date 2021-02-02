@@ -5,6 +5,8 @@ An importer of [Tiled](https://www.mapeditor.org/) JSON maps for the [mini-micro
 ## Purpose
 This libary is used to load and display [Tiled](https://www.mapeditor.org/) maps into [mini-micro](https://miniscript.org/)! Tiled is very useful to quickly create 2D tilemaps. With a few save file tweaks, one can quickly develop Tiled maps and view them in the game with a quick reload. 
 
+![alt text](docs/sample1.png)
+
 Due to the nature of mini-micro, there are a few limitations on what features are supported from Tiled. 
 
 ## Usage
