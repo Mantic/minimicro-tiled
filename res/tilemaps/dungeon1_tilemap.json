@@ -1,0 +1,27 @@
+{ "columns":19,
+ "editorsettings":
+    {
+     "export":
+        {
+         "format":"json",
+         "target":"dungeon1_test.json"
+        }
+    },
+ "image":"dungeon_tiles.png",
+ "imageheight":272,
+ "imagewidth":304,
+ "margin":0,
+ "name":"dungeon1",
+ "spacing":0,
+ "tilecount":323,
+ "tiledversion":"1.4.3",
+ "tileheight":16,
+ "tiles":[
+        {
+         "id":0,
+         "type":"test2"
+        }],
+ "tilewidth":16,
+ "type":"tileset",
+ "version":1.4
+}
