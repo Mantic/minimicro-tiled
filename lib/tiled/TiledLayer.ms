@@ -46,7 +46,7 @@ TiledLayer.load = function(map, tileSize)
 end function
 
 // Assigns a micromini layer to this tiled layer. 
-TiledLayer.setRenderLayer = function(displayIndex, tilesetImage, clearIdx = -1,)
+TiledLayer.setRenderLayer = function(displayIndex, tilesetImage, firstgid, clearIdx = -1,)
 
 	if displayIndex <= 0 or displayIndex > 7 then
 		// Display index out of bounds!
@@ -55,8 +55,8 @@ TiledLayer.setRenderLayer = function(displayIndex, tilesetImage, clearIdx = -1,)
 	end if
 
 	// print "Using display index: " + displayIndex
-  display(displayIndex).mode = displayMode.tile
-  td = display(displayIndex)
+	display(displayIndex).mode = displayMode.tile
+	td = display(displayIndex)
 
 	if tilesetImage != null then 
 		td.tileSet = tilesetImage
@@ -73,12 +73,13 @@ TiledLayer.setRenderLayer = function(displayIndex, tilesetImage, clearIdx = -1,)
 	end if
 
 	td.tileSetTileSize = self.tileSize
-  td.scrollX = self.scrollX
-  td.scrollY = self.scrollY
-  td.extent = [self.width, self.height]
-  td.cellSize = self.tileSize * self.zoom
+	td.scrollX = self.scrollX
+	td.scrollY = self.scrollY
+	td.extent = [self.width, self.height]
+	td.cellSize = self.tileSize * self.zoom
 
 	self.display = td
+	self.firstgid = firstgid
 
 	return true
 end function
@@ -96,7 +97,9 @@ TiledLayer.render = function()
 
 	// Render cells
 	for i in range(0, tileCount - 1)
-		self.display.setCell (i % width), floor(i/width), (self.data[i] - 1)
+		// TODO: The `- 1` here is a bug.  The offset should be based on the `firstgid` value in the map .tmj file.
+		// self.display.setCell (i % width), floor(i/width), (self.data[i] - 1)
+		self.display.setCell (i % width), floor(i/width), (self.data[i] - self.firstgid)
 		
 		// Just in case its a very large map, yield a few times to keep the system from locking up. 
 		if i % 500 == 0 and i > 490 then
@@ -133,7 +136,7 @@ TiledLayer._parseData = function(raw)
 
 	j = 0
 	data = [null] * rawList.len
-  for i in range(0, rawList.len - 1)
+	  for i in range(0, rawList.len - 1)
 		j = (i % self.width) + (self.width * (self.height - floor(i/self.width) - 1))
 		data[j] = rawList[i]
 
@@ -141,7 +144,7 @@ TiledLayer._parseData = function(raw)
 		if i % 500 == 0 and i > 490 then
 			yield
 		end if
-  end for
+  	end for
 
 	return data
 end function

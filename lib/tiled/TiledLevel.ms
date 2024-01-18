@@ -1,9 +1,11 @@
 import "json"
 import "stringUtil"
 
-
 import "lib/tiled/TiledLayer"
 TiledLayer = locals["lib/tiled/TiledLayer"]
+
+import "lib/tiled/TiledObjectGroup"
+TiledObjectGroup = locals["lib/tiled/TiledObjectGroup"]
 
 // TODOS:
 // Support tile properties
@@ -39,8 +41,10 @@ TiledLevel = {
 	"source": null,
 	"imgPath": "",               // Image path of tileset images.
 	"tilesetImgs": [],           // Array list of tileset images.
+	"tilesetFirstgids": [],		 // Array list of the firstgid values for each tileset.
 
 	"hasLayers": false,          // Only set to true once layers have been loaded. 
+	"hasObjects": false,		 // Only set to true once objects have been loaded.
 	"x": 0,
 	"y": 0,
 
@@ -87,7 +91,17 @@ TiledLevel.addRenderLayer = function(tiledLayerIndex, displayIndex, tilesetIndex
 
 	img = self.tilesetImgs[tilesetIndex]
 
-	return self.layers[tiledLayerIndex].setRenderLayer(displayIndex, img, clearIdx)
+	return self.layers[tiledLayerIndex].setRenderLayer(displayIndex, img, self.tilesetFirstgids[tilesetIndex], clearIdx)
+end function
+
+TiledLevel.getByName = function(name)
+	for layer in self.layers
+		if layer.name == name then return layer
+	end for
+	for group in self.objectGroups
+		if group.name == name then return group
+	end for
+	return null
 end function
 
 // Render all layers (call once). 
@@ -121,8 +135,12 @@ TiledLevel.scrollBy = function(dx, dy)
 	self.y = y
 
 	for i in range(0, self.layers.len - 1)
-		self.layers[i].display.scrollX = x
-		self.layers[i].display.scrollY = y
+		// BUG FIX: Don't scroll layers that aren't rendered.
+		disp = self.layers[i].display
+		if disp != null then
+			disp.scrollX = x
+			disp.scrollY = y
+		end if
 	end for
 
 end function
@@ -137,8 +155,12 @@ TiledLevel.scrollTo = function(x, y)
 	self.y = y
 
 	for i in range(0, self.layers.len - 1)
-		self.layers[i].display.scrollX = x
-		self.layers[i].display.scrollY = y
+		// BUG FIX: Don't scroll layers that aren't rendered.
+		disp = self.layers[i].display
+		if disp != null then
+			disp.scrollX = x
+			disp.scrollY = y
+		end if
 	end for
 end function
 
@@ -176,6 +198,7 @@ TiledLevel._parseMap = function(map, imgPath)
 	self.tileHeight = map.tileheight
 	self.tileWidth = map.tilewidth
 	self.layers = self._parseLayers
+	self.objectGroups = self._parseObjects
 
 	// Load meta data:
 	self.orientation = map.orientation
@@ -192,6 +215,7 @@ TiledLevel._parseMap = function(map, imgPath)
 	return self
 end function
 
+// Parse the tile layers out of the source file.
 TiledLevel._parseLayers = function()
 	layers = []
 
@@ -211,13 +235,46 @@ TiledLevel._parseLayers = function()
 			maxSize = self.tileHeight
 		end if
 
-		layer = new TiledLayer
-		layers.push layer.load(self.source.layers[i], maxSize)
-		
+		if self.source.layers[i].type == "tilelayer" then
+			layer = new TiledLayer
+			layers.push layer.load(self.source.layers[i], maxSize)
+		end if
+
 		self.hasLayers = true
 	end for
 
 	return layers
+end function
+
+// Parse the object groups out of the source file.
+TiledLevel._parseObjects = function()
+	objectGroups = []
+
+	if self.source == null then
+		return objectGroups
+	end if
+
+	length = self.source.layers.len
+	if length == 0 then
+		self.setError(Errors.ContainsNoLayers)
+		return objectGroups
+	end if
+
+	for i in range(0, length - 1)
+		maxSize = self.tileWidth
+		if self.tileHeight > maxSize then 
+			maxSize = self.tileHeight
+		end if
+
+		if self.source.layers[i].type == "objectgroup" then
+			group = new TiledObjectGroup
+			objectGroups.push group.load(self.source.layers[i])
+		end if
+
+		self.hasObjects = true
+	end for
+
+	return objectGroups
 end function
 
 TiledLevel._parseTilesets = function(tilesets)
@@ -244,8 +301,10 @@ TiledLevel._parseTilesets = function(tilesets)
 		if not img or img.width == 8 then 
 			print "TiledLayer: Could not load image: " + self.imgPath + "/" + tilesets[i].source
 			self.tilesetImgs.push false
+			self.tilesetFirstgids.push false
 		else
 			self.tilesetImgs.push img
+			self.tilesetFirstgids.push tilesetDef.firstgid
 		end if
 	end for
 end function
