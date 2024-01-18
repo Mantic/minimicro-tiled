@@ -41,6 +41,9 @@ There are a few features that aren't supported in mini-micro. Some might be impl
 	 1. Tilemaps composed of individual images are not supported.
  3. Tile rotation is not supported. 
  4. Object layers are not supported. 
+     1. Objects are supported as of 1/16/2024.
+     2. Specifically tile objects.  The other types haven't been tested.
+     3. Support for custom object properties was added on 1/17/2024.
  5. Isometric tilesets are not supported *(yet?)*. 
  6. No compression/base64 support on tilemap data *(yet)*. 
  7. No meta data support on tiles *(yet)*. 

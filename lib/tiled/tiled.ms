@@ -3,7 +3,8 @@ import "json"
 import "lib/tiled/TiledLevel"
 TiledLevel = locals["lib/tiled/TiledLevel"]
 
-VERSION = "0.0.1"
+// TODO: I incremented this since I fixed a bug and added object group support.
+VERSION = "0.0.2"
 
 // tilemapFile: relative path (from app root) of the json export of a Tiled tilemap file. 
 // imgPath: relative (to root of app) of where image files are located. EG: "images/maps"
