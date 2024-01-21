@@ -117,6 +117,11 @@ TiledLayer.setZoom = function(zoom)
 	self.zoom = zoom
 end function
 
+// (0, 0) is the top-left of the layer.
+TiledLayer.getTileIndex = function(x, y)
+	return (self.height - y - 1) * self.width + x
+end function
+
 // Reverses the row order of the tiled map to the way micromini wants them. 
 TiledLayer._parseData = function(raw)
 	data = []
@@ -136,7 +141,7 @@ TiledLayer._parseData = function(raw)
 
 	j = 0
 	data = [null] * rawList.len
-	  for i in range(0, rawList.len - 1)
+	for i in range(0, rawList.len - 1)
 		j = (i % self.width) + (self.width * (self.height - floor(i/self.width) - 1))
 		data[j] = rawList[i]
 

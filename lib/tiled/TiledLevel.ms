@@ -7,6 +7,9 @@ TiledLayer = locals["lib/tiled/TiledLayer"]
 import "lib/tiled/TiledObjectGroup"
 TiledObjectGroup = locals["lib/tiled/TiledObjectGroup"]
 
+// TODO: I incremented this since I fixed a bug and added object group support.
+VERSION = "0.0.2"
+
 // TODOS:
 // Support tile properties
 // 
@@ -64,6 +67,34 @@ TiledLevel = {
 	"type": "",                  // Tiled file type: map, (?)
 	"compressionLevel": -1, 		 // Not sure... 
 }
+
+// tilemapFile: relative path (from app root) of the json export of a Tiled tilemap file. 
+// imgPath: relative (to root of app) of where image files are located. EG: "images/maps"
+TiledLevel.load = function(tilemapFile, imgPath)
+	self.version = VERSION
+
+	// Load tilemap file and parse it. 
+	if not file.exists(tilemapFile) then
+		return self.setError(self.Errors.FileNotExist)
+	end if
+
+	fHandle = file.open(tilemapFile)
+	fSource = fHandle.read
+
+	if fSource == "" then
+		return self.setError(self.Errors.CannotLoadFile)
+	end if
+
+	tmap = json.parse(fSource)
+
+	// Not sure how JSON.parse handles invalid JSON data...
+	if tmap == null then
+		return self.setError(self.Errors.InvalidJSON)
+	end if
+
+	// Parse map and construct the Tiled Level
+	return self._parseMap(tmap, imgPath)
+end function
 
 // tiledLayerIndex: Which layer (in the Tiled file) to render.
 // displayIndex: Which minimicro display layer to use. 
