@@ -65,7 +65,9 @@ TiledLevel = {
 	"tiledVersion": "0",
 	"version": 0.0,              // Number version: major.minor
 	"type": "",                  // Tiled file type: map, (?)
-	"compressionLevel": -1, 		 // Not sure... 
+	"compressionLevel": -1,      // Not sure... 
+
+	"properties": {},			// Container for custom properties.
 }
 
 // tilemapFile: relative path (from app root) of the json export of a Tiled tilemap file. 
@@ -242,6 +244,13 @@ TiledLevel._parseMap = function(map, imgPath)
 
 	// Grab image sources from all tilesets.
 	self._parseTilesets map.tilesets
+
+    // There's a prop.type, but I'm not sure it's needed here.
+    if map.indexes.indexOf("properties") != null then
+		for prop in map.properties
+			self.properties[prop.name] = prop.value
+		end for
+	end if
 
 	return self
 end function
