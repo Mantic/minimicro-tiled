@@ -101,6 +101,7 @@ TiledLayer.render = function()
 		// self.display.setCell (i % width), floor(i/width), (self.data[i] - 1)
 		self.display.setCell (i % width), floor(i/width), (self.data[i] - self.firstgid)
 		
+		// TODO: Experiment with removing the yield.
 		// Just in case its a very large map, yield a few times to keep the system from locking up. 
 		if i % 500 == 0 and i > 490 then
 			yield
@@ -142,7 +143,10 @@ TiledLayer._parseData = function(raw)
 	j = 0
 	data = [null] * rawList.len
 	for i in range(0, rawList.len - 1)
-		j = (i % self.width) + (self.width * (self.height - floor(i/self.width) - 1))
+		tileColumn = i % self.width
+		tileRow = floor(i / self.width)
+
+		j = tileColumn + (self.width * (self.height - tileRow - 1))
 		data[j] = rawList[i]
 
 		// Just in case its a very large map, yield a few times.
