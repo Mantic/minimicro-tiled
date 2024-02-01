@@ -197,6 +197,26 @@ TiledLevel.scrollTo = function(x, y)
 	end for
 end function
 
+TiledLevel.scrollX = function
+	for i in range(0, self.layers.len - 1)
+		disp = self.layers[i].display
+		if disp != null then
+			return disp.scrollX
+		end if
+	end for
+	return 0
+end function
+
+TiledLevel.scrollY = function
+	for i in range(0, self.layers.len - 1)
+		disp = self.layers[i].display
+		if disp != null then
+			return disp.scrollY
+		end if
+	end for
+	return 0
+end function
+
 // Used internally to create and return errors. 
 TiledLevel.setError = function(errorId, msg = null)
 	self.errId = errorId
